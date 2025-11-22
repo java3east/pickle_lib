@@ -3,12 +3,21 @@
 
 local function caller_id(index)
     local info = debug.getinfo(index, "Sl")
-    return ("%s:%d"):format(info.short_src, info.currentline)
+    local short_src = info.source
+    if #short_src > 60 then
+        short_src = "..." .. short_src:sub(-57)
+    end
+    return ("%s:%d"):format(short_src, info.currentline)
 end
 
 local _print = print
 function print(...)
     _print("[INFO] [".. (IS_CLIENT and "CLIENT" or "SERVER") .. "] ", ..., "(" .. tostring(caller_id(3)) .. ")")
+end
+
+local _error = error
+function error(msg, level)
+    _error("[ERROR] [".. (IS_CLIENT and "CLIENT" or "SERVER") .. "] " .. msg .. " (" .. tostring(caller_id(3)) .. ")", level)
 end
 
 ---Prints a formatted string to the console.
